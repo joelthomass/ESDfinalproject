@@ -19,4 +19,7 @@ public class ProductService {
     public List<Product> getTop2Products(double minPrice, double maxPrice) {
         return productRepository.findPriceRange(minPrice, maxPrice);
     }
+    public Product addProduct(Product product) {
+        return productRepository.save(product); // This will insert a new product into the database.
+    }
 }

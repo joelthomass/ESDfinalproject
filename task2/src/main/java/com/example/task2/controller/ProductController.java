@@ -2,9 +2,10 @@ package com.example.task2.controller;
 
 import com.example.task2.model.Product;
 import com.example.task2.service.ProductService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -20,5 +21,11 @@ public class ProductController {
             @RequestParam double minPrice,
             @RequestParam double maxPrice) {
         return productService.getTop2Products(minPrice, maxPrice);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
+        Product savedProduct = productService.addProduct(product);
+        return new ResponseEntity<>(savedProduct, HttpStatus.CREATED); // Return 201 Created response.
     }
 }
