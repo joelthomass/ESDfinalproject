@@ -9,6 +9,7 @@ import com.itextpdf.layout.element.Text;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -23,7 +24,7 @@ public class PdfGeneratorService {
             PdfFont boldFont = PdfFontFactory.createFont("Helvetica-Bold");
 
             // Add Title to PDF with bold font
-            document.add(new Paragraph(new Text("Payment History").setFont(boldFont).setFontSize(18)));
+            document.add(new Paragraph(new Text("Payment Receipt").setFont(boldFont).setFontSize(18)));
 
             // Create the table with 5 columns: Payment ID, Description, Amount, Payment Date, and Bill ID
             Table table = new Table(5);
@@ -33,16 +34,27 @@ public class PdfGeneratorService {
             table.addCell("Payment Date");
             table.addCell("Bill ID");
 
+            // Initialize total amount as BigDecimal for accurate calculation
+            BigDecimal totalAmountPaid = BigDecimal.ZERO;
+
             // Populate the table with data from the payments
             for (StudentPayment payment : payments) {
                 table.addCell(String.valueOf(payment.getId()));
-                table.addCell(payment.getDescription());  // Assuming there is a description field in StudentPayment
+                table.addCell(payment.getDescription());
                 table.addCell(String.valueOf(payment.getAmount()));
                 table.addCell(payment.getPaymentDate().toString());
-                table.addCell(String.valueOf(payment.getBill().getId())); // Access Bill ID from the Bill object
+                table.addCell(String.valueOf(payment.getBill().getId()));
+
+                // Add the payment amount to the total using BigDecimal
+                totalAmountPaid = totalAmountPaid.add(payment.getAmount());
             }
 
             document.add(table);
+
+            // Add the total amount paid at the bottom of the PDF
+            document.add(new Paragraph("Total Paid: $" + totalAmountPaid.setScale(2, BigDecimal.ROUND_HALF_UP))
+                    .setFont(boldFont).setFontSize(16));
+
             document.close();
             return out.toByteArray(); // Return the PDF as a byte array
         } catch (Exception e) {
